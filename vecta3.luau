@@ -4,7 +4,7 @@ local Vecta3 = {}
 
 Vecta3.interface = {}
 Vecta3.schema = {}
-Vecta3.metatable = { __index = Vecta3.schema }
+Vecta3.metatable = {}
 
 type Vecta3Object = { X: number, Y: number, Z: number, Magnitude: number, Unit: any }
 export type Vecta3 = typeof(setmetatable({} :: Vecta3Object, {} :: typeof(Vecta3.metatable)))
@@ -24,8 +24,7 @@ end
 --[[
 returns a new vecta3 object in the given direction with a magnitude of 1
 ]]
-function Vecta3.interface.FromNormalId(normal: Enum.NormalId): Vecta3
-	local cases = {
+local normalIdCases = {
 		[Enum.NormalId.Back] = Vecta3.interface.new(-1, 0, 0),
 		[Enum.NormalId.Bottom] = Vecta3.interface.new(0, -1, 0),
 		[Enum.NormalId.Front] = Vecta3.interface.new(1, 0, 0),
@@ -33,19 +32,20 @@ function Vecta3.interface.FromNormalId(normal: Enum.NormalId): Vecta3
 		[Enum.NormalId.Right] = Vecta3.interface.new(0, 0, 1),
 		[Enum.NormalId.Top] = Vecta3.interface.new(0, 1, 0),
 	}
-	return cases[normal]
+function Vecta3.interface.FromNormalId(normal: Enum.NormalId): Vecta3
+	return normalIdCases[normal]
 end
 
 --[[
 returns a new vecta3 object with a value of 1 on the given axis
 ]]
-function Vecta3.interface.FromAxis(axis: Enum.Axis): Vecta3
-	local cases = {
+local axisCases = {
 		[Enum.Axis.X] = Vecta3.interface.new(1, 0, 0),
 		[Enum.Axis.Y] = Vecta3.interface.new(0, 1, 0),
 		[Enum.Axis.Z] = Vecta3.interface.new(0, 0, 1),
 	}
-	return cases[axis]
+function Vecta3.interface.FromAxis(axis: Enum.Axis): Vecta3
+	return axisCases[axis]
 end
 
 Vecta3.interface.one = Vecta3.interface.new(1, 1, 1)
@@ -55,13 +55,6 @@ Vecta3.interface.yAxis = Vecta3.interface.new(0, 1, 0)
 Vecta3.interface.zAxis = Vecta3.interface.new(0, 0, 1)
 
 --schema--------------------------------------------------------------------------------------------
-
---[[
-same vecta3 object, but with a magnitude of 1
-]]
-function Vecta3.schema.Unit(self: Vecta3): Vecta3
-	return self / self.Magnitude
-end
 
 --[[
 returns the absolute values of the components of the vecta3
@@ -224,6 +217,20 @@ end
 
 function Vecta3.metatable.__tostring(self: Vecta3): string -- "x, y, z"
 	return (tostring(self.X) .. ", " .. tostring(self.Y) .. ", " .. tostring(self.Z))
+end
+
+local functions = {
+	Unit = function(self: Vecta3): Vecta3
+		return self / self.Magnitude
+	end,
+}
+
+function Vecta3.metatable.__index(self: Vecta3, key: string)
+	if functions[key] then
+		return functions[key](self)
+	else
+		return Vecta3.schema[key]
+	end
 end
 
 return table.freeze(Vecta3.interface)
