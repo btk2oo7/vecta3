@@ -1,4 +1,4 @@
-my recreation of the roblox vector3 class.
-should work the same.
-the purpose of this project was to learn metamethods and object-oriented programming in luau.
-i think i did
+# vecta3 library
+meant to be a 1:1 replica of roblox's Vector3 class
+
+the purpose of the project was to further my understanding of luau metatables and object-oriented programming
